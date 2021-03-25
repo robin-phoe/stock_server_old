@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>在div中写入一个Button按钮 (js)_百度知道 </title>
+    <link rel="alternate" type="application/rss+xml" title="“在div中写入一个Button按钮 (js)”的最新回答（RSS 2.0）" href="http://zhidao.baidu.com/q?ct=20&qid=113109049&pn=65535&rn=25&tn=rssqb">
+    <div class="test">test</div>
+</head>
+<body>
+<script>
+    newhtml =  `<div class="main" style="width: 1200px; height: 500px;">test1</div>`
+    let test=document.getElementsByClassName('test')[0]
+    test.innerHTML=newhtml
+    bt=document.createElement("button");
+    bt.innerHTML=`<div style="padding-left:500px;top:0px">this's a button</div>`;
+    document.getElementsByClassName('main')[0].appendChild(bt);
+    bt=document.createElement("button");
+    bt.innerHTML="添加一个button1";
+    document.getElementsByClassName('main')[0].appendChild(bt);
+</script>
+</body>
+</html>
