@@ -294,7 +294,8 @@ function go_page(page){
         <!--del_but.value = '删除';-->
 <!--        del_but.innerHTML=`<button type="button" class="button btn-light" id="add-btn" onclick="del_div(${j})">删除${i}</button>`-->
 <!--        del_but.innerHTML=`<div style="padding-left:800px;padding-right:100px;top:0px"><input type="text" name="reason+${data_single[0]}" value=""><input type="submit" value="删除" id="add-btn" onSubmit="del_div(0)"></div>`;-->
-        del_but.innerHTML=`<form method="POST" onSubmit="del_div(${j})" style="padding-left:800px;padding-right:100px;top:0px">{% csrf_token %}<input type="text" name="reason${data_single[0]}" value=""><input type="submit" value="删除" id="add-btn"></form>`;
+        del_but.innerHTML=`<form method="POST" onSubmit="del_div(${j})" style="padding-left:800px;padding-right:100px;top:0px" target="iframename">{% csrf_token %}
+            <input type="text" name="reason${data_single[0]}" value=""><input type="submit" value="删除" id="add-btn"></form><iframe name="iframename" style="display:none;"></iframe>`;
         document.getElementsByClassName('main')[i].appendChild(del_but);
 
     }
