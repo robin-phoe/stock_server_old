@@ -3,7 +3,8 @@ from django.shortcuts import render
 from django.db import connection
 from django.views.decorators.csrf import csrf_exempt
 import datetime
-
+import json
+import re
 cursor = connection.cursor()
 cursor.execute('select distinct Z.stock_id,Z.stock_name,Z.zhuang_grade,I.h_table,I.bk_name from com_zhuang Z '
                'left join stock_informations I '
@@ -34,7 +35,15 @@ for stock in res:
     data_list.append(rows_list)
     # print('row:',rows[i])
     # print(rows)
-print('data_list:',data_list)
+# print('data_list:',data_list)
+def del_stock(stock_info='',reson='',db_field= '',db_table = ''):
+    if stock_info[0:6]=='reason':
+        stock_flag = stock_info[6:]
+    else:
+        print('input error:{}'.format(stock_info))
+    sql = "delete from {0} where {1} = '{2}'".format(db_table,db_field,stock_flag)
+    print('sql:',sql)
+    cursor.execute(sql)
 def hello(request):
     return HttpResponse('hello world!')
 @csrf_exempt
@@ -43,8 +52,14 @@ def runoob(request):
     context['data'] = data_list#[['2015-10-16',18.4,18.58,18.33,18.79,67.00,1,0.04,0.11,0.09],['2015-10-19',18.56,18.25,18.19,18.56,55.00,0,-0.00,0.08,0.09]]
     # context['hello'] = 'hello world!'
     if request.method == "POST":
+        # put_reson = json.loads(request.body)
         print('req:',request.POST)
+        for key in request.POST:
+            print('value:',key,request.POST[key])
+            del_stock(stock_info=key, reson=request.POST[key], db_field='stock_id', db_table='com_zhuang')
         # reason = request.POST['reason']
+        # re_res = re.findall('.*?reson(.*?)=(.*?)',bytes(request.body,encoding = "utf-8").decode())
+        # print('re_res:',re_res)
     return render(request,'echarts_value_g.html',context)
     # return render(request, 'runoob.html', context)
 # def receive(request):
