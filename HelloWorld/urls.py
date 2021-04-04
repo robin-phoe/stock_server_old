@@ -8,6 +8,6 @@ urlpatterns = [
 ]
 urlpatterns = [
     # url(r'^$',views.hello),
-    path('runoob/', views.runoob),
+    path('', views.runoob),
     path('testdb/', testdb.testdb),
 ]

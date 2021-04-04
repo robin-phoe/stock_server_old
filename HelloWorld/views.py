@@ -6,10 +6,15 @@ import datetime
 import json
 import re
 cursor = connection.cursor()
-cursor.execute('select distinct Z.stock_id,Z.stock_name,Z.zhuang_grade,I.h_table,I.bk_name from com_zhuang Z '
-               'left join stock_informations I '
-               'on Z.stock_id = I.stock_id '
-               'where zhuang_grade >= 1000 and zhuang_grade <10000 limit 40')
+sql = 'select distinct Z.stock_id,Z.stock_name,Z.zhuang_grade,I.h_table,I.bk_name from com_zhuang Z '\
+               'left join stock_informations I '\
+               'on Z.stock_id = I.stock_id '\
+               'where zhuang_grade >= 1000 and zhuang_grade <10000 limit 40'
+sql = 'select distinct Z.stock_id,Z.stock_name,Z.redu_5,I.h_table,I.bk_name from com_redu_test Z ' \
+      'left join stock_informations I ' \
+      'on Z.stock_id = I.stock_id ' \
+      'where redu_5 >= 10000 and trade_date = "2021-04-02" order by  redu_5 DESC '
+cursor.execute(sql)
 res = cursor.fetchall()
 # res = [('000617','中油资本',111,'7','test'),] * 100
 # id_list = []
