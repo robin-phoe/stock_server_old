@@ -110,7 +110,7 @@ def runoob(request):
             sql = 'select distinct Z.trade_code,Z.stock_id,Z.stock_name,Z.grade,I.h_table,I.bk_name,Z.trade_code from remen_xiaoboxin Z '\
                            'left join stock_informations I '\
                            'on Z.stock_id = I.stock_id '\
-                           'where monitor = 1 and grade >= "{0}" and grade <"{1}" and trade_date ="{2}"'.format(remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_grade_s'],
+                           'where monitor = 1 and grade >= "{0}" and grade <"{1}" and trade_date ="{2} order grade DESC"'.format(remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_grade_s'],
                                                                                          remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_grade_e'],remen_xiaoboxin_param_dict['remen_xiaoboxin_B_today_input'])
             res = sel_stock_list(cursor, sql)
             data_list = sel_stock_k_date(res,table='xiaoboxin',date_s=remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_date_s'],
@@ -120,7 +120,7 @@ def runoob(request):
             sql = 'select distinct Z.stock_id,Z.stock_id,Z.stock_name,Z.zhuang_grade,I.h_table,I.bk_name from com_zhuang Z '\
                            'left join stock_informations I '\
                            'on Z.stock_id = I.stock_id '\
-                           'where monitor = 1 and zhuang_grade >= "{0}" and zhuang_grade <"{1}" '.format(zhuang_param_dict['zhuang_input_grade_s'],
+                           'where monitor = 1 and zhuang_grade >= "{0}" and zhuang_grade <"{1}" order zhuang_grade DESC'.format(zhuang_param_dict['zhuang_input_grade_s'],
                                                                                          zhuang_param_dict['zhuang_input_grade_e'])
             res = sel_stock_list(cursor, sql)
             data_list = sel_stock_k_date(res,table='zhuang',date_s=zhuang_param_dict['zhuang_input_date_s'],date_e=zhuang_param_dict['zhuang_input_date_e'])
@@ -129,7 +129,7 @@ def runoob(request):
             sql = 'select distinct Z.trade_code,Z.stock_id,Z.stock_name,Z.redu_5,I.h_table,I.bk_name from com_redu_test Z '\
                            'left join stock_informations I '\
                            'on Z.stock_id = I.stock_id '\
-                           'where monitor = 1 and redu_5 >= "{0}" and redu_5 <"{1}" and trade_date ="{2}"'.format(remen_5_param_dict['remen_5_grade_s'],
+                           'where monitor = 1 and redu_5 >= "{0}" and redu_5 <"{1}" and trade_date ="{2}" order redu_5 DESC'.format(remen_5_param_dict['remen_5_grade_s'],
                                                                                          remen_5_param_dict['remen_5_grade_e'],remen_5_param_dict['remen_5_today_input'])
             res = sel_stock_list(cursor, sql)
             data_list = sel_stock_k_date(res,table='remen_five',date_s=remen_5_param_dict['remen_5_date_s'],date_e=remen_5_param_dict['remen_5_date_e'])
