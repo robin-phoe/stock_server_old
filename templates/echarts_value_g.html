@@ -21,6 +21,9 @@
     var date = new Date();
     var data_list = {{data | safe}}
     var page = 0
+    var page_count = 20
+    var count_page =  Math.ceil(data_list.length/page_count);
+    var reason_respone = ''
     if (data_list.lenght != 0){
         drow_main()
     }
@@ -45,6 +48,7 @@
                 <form method="POST"  style="padding-left:100px;padding-right:100px;top:0px" >
                 <td>监控数据日期:</td><input type="text" name="monitor_input" value="${today_str}">
                 <input type="submit" value="查询" id="monitor_btn"></form>`;
+                var reason_respone = 'monitor'
         }
         else if (option == "remen_xiaoboxin_B"){
             let end_date_str = date_2_str(date)
@@ -62,6 +66,7 @@
             let end_date_str = date_2_str(date)
             let start_date_str = com_date(date,delta_date = 360)
             var param=document.getElementsByClassName('param')[0]
+            var reason_respone = 'zhuang'
             param.innerHTML=`<form method="POST"  style="padding-left:100px;padding-right:100px;top:0px" >
                             <td>起始分数:</td><input type="text" name="zhuang_input_grade_s" value="1000">
                             <td>终止分数:</td><input type="text" name="zhuang_input_grade_e" value="10000">
@@ -91,10 +96,8 @@
 
     function drow_main(){
 <!--        var data_list = {{data | safe}};-->
-        count_page = Math.ceil(data_list.length/10)-1;
         console.log('count_page:',count_page);
         go_page(page)
-        page_button(page)
     }
     //数组处理
     function splitData(rawData) {
@@ -175,12 +178,12 @@
       return result;
     }
     function go_page(page){
-        list_start = page * 10
-        if (data_list.lengh <= page*10){
-            end_no = data_list.lengh%10
+        list_start = page * page_count
+        if (data_list.lengh <= page*page_count){
+            end_no = data_list.lengh%page_count
         }
         else{
-            end_no = 10
+            end_no = page_count
         }
         newhtml = ""
     <!--    if (mycharts){-->
@@ -189,21 +192,25 @@
     <!--        mycharts = undefined;-->
     <!--        }-->
         for (let i=0;i<end_no;i++){
-            newhtml = newhtml + `<div class="main" style="width: 1200px; height: 500px;padding-left:255px;">chart</div>` +
+            newhtml = newhtml + `<div class="main" style="width: 1200px; height: 500px;padding-left:255px;"></div>` +
              `<div class="fill" style="width: 1200px; height: 80px;"></div>`
             }
             <!--newhtml =`<div class="main" style="width: 1200px; height: 500px;">test1</div>`-->
         var content=document.getElementsByClassName('content')[0]
         content.innerHTML=newhtml
         for (let j=list_start;j<(list_start+end_no);j++){
-            i = j%10;
+            i = j%page_count;
             console.log('len_list:',j,data_list.length)
             let data_single = data_list[j];
     <!--        console.log(`len_single:${data_single}`)-->
-            var data = splitData(data_single[2]);
+            let table = data_single[0]
+            let info = data_single[2]
+            let stock_data = data_single[3]
+            let code = data_single[1]
+            var data = splitData(stock_data);
             var option = {
               title: {
-                  text: `${data_single[1]}`,
+                  text: `${info}`,
                   left: 0
               },
               tooltip: {
@@ -376,10 +383,10 @@
     <!--        del_but.innerHTML=`<button type="button" class="button btn-light" id="add-btn" onclick="del_div(${j})">删除${i}</button>`-->
     <!--        del_but.innerHTML=`<div style="padding-left:800px;padding-right:100px;top:0px"><input type="text" name="reason+${data_single[0]}" value=""><input type="submit" value="删除" id="add-btn" onSubmit="del_div(0)"></div>`;-->
             del_but.innerHTML=`<form method="POST"  style="padding-left:800px;padding-right:100px;top:0px" target="iframename">
-                <input type="text" name="reason${data_single[0]}" value=""><input type="submit" value="删除" id="add-btn"></form><iframe name="iframename" style="display:none;"></iframe>`;
+                <input type="text" name="reason${code}${table}" value=""><input type="submit" value="删除" id="add-btn"></form><iframe name="iframename" style="display:none;"></iframe>`;
             document.getElementsByClassName('main')[i].appendChild(del_but);
-
         }
+        page_button(page);
     }
 
     function page_fun(flag){
@@ -391,17 +398,18 @@
             page --;
             go_page(page)
         }
-        page_button(page)
     }
     function page_button(page){
+        let page_str = page +1
+        page_html = `<div style="padding-left:600px;top:0px"><td>第${page_str}页，共 ${count_page} 页</td>`
         if (page == 0){
-            page_html = `<div style="padding-left:1000px;top:0px"><input type="submit" value="下一页" id="add-btn" onclick="page_fun('next')"></div>`;
+            page_html += `<input type="submit" value="下一页" id="add-btn" onclick="page_fun('next')"></div>`;
         }
-        else if(page == count_page){
-            page_html = `<div style="padding-left:1000px;top:0px"><input type="submit" value="上一页" id="add-btn" onclick="page_fun('pre')"></div>`;
+        else if(page == count_page-1){
+            page_html += `<input type="submit" value="上一页" id="add-btn" onclick="page_fun('pre')"></div>`;
         }
         else {
-            page_html = `<div style="padding-left:1000px;top:0px"><input type="submit" value="上一页" id="add-btn" onclick="page_fun('pre')">
+            page_html += `<input type="submit" value="上一页" id="add-btn" onclick="page_fun('pre')">
             <input type="submit" value="下一页" id="add-btn" onclick="page_fun('next')"></div>`;
         }
         let page_but = document.createElement("div");

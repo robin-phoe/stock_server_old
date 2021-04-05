@@ -23,12 +23,12 @@ def sel_stock_list(cursor,sql):
     #     id_list.append(tup[0])
     # print('id:',id_list)
     return res
-def sel_stock_k_date(res,date_e = None,date_s = '2020-08-01'):
+def sel_stock_k_date(res,table,date_e = None,date_s = '2020-08-01'):
     data_list = []
     for stock in res:
         # print('stock:',stock)
-        id = stock[0]
-        h_tab = stock[3]
+        id = stock[1]
+        h_tab = stock[4]
         # print('id:',id)
         if date_e == None:
             sql = 'select date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
@@ -36,25 +36,33 @@ def sel_stock_k_date(res,date_e = None,date_s = '2020-08-01'):
         else:
             sql = 'select date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
                        ' from stock_history_trade{0} where stock_id = "{1}" and trade_date > "{2}" and trade_date < "{3}"'.format(h_tab,id,date_s,date_e)
+        # print('sql:',sql)
         cursor.execute(sql)
         rows = cursor.fetchall()
         # print('rows:',rows)
         rows = list(rows)
         for i in range(len(rows)):
             rows[i] = list(rows[i])
-        info = str(stock[0]) +' '+ str(stock[1]) +' ' + str(stock[2])+' ' + str(stock[4])
+        info = str(stock[0]) +' '+ str(stock[2]) +' ' + str(stock[3])+' ' + str(stock[5])
         tag = stock[0]
-        rows_list = [tag,info,rows]
+        rows_list = [table,tag,info,rows]
+        # data_list = {table,code(t_code | id),info(id,name,grade),[data]}
         data_list.append(rows_list)
     return data_list
         # print('row:',rows[i])
         # print(rows)
-def del_stock(stock_info='',reson='',db_field= '',db_table = ''):
-    if stock_info[0:6]=='reason':
-        stock_flag = stock_info[6:]
-    else:
-        print('input error:{}'.format(stock_info))
-    sql = "delete from {0} where {1} = '{2}'".format(db_table,db_field,stock_flag)
+def del_stock(key,value):
+    reason_type = re.findall('\D+', key)[1]
+    print('reason_type:',key,reason_type)
+    code = re.findall('\d+', key)[0]
+    if reason_type == 'zhuang':
+        sql = "UPDATE com_zhuang SET monitor = 0,reason = '{0}' where stock_id = '{1}'".format(value,code)
+    elif reason_type == 'xiaoboxin':
+        sql = "UPDATE remen_xiaoboxin SET monitor = 0,reason = '{0}' where trade_code = '{1}'".format(value, code)
+    elif reason_type == 'remen_five':
+        sql = "UPDATE com_redu_test SET monitor = 0,reason = '{0}' where trade_code = '{1}'".format(value, code)
+    elif reason_type == 'monitor':
+        sql = "UPDATE monitor SET monitor = 0,reason = '{0}' where trade_code = '{1}'".format(value, code)
     print('sql:',sql)
     cursor.execute(sql)
 def hello(request):
@@ -72,11 +80,15 @@ def runoob(request):
         for key in request.POST:
             print('value:',key,request.POST[key])
             # del_stock(stock_info=key, reson=request.POST[key], db_field='stock_id', db_table='com_zhuang')
-            if key == 'monitor_input':
+            #display处理
+            if key[0:6] == 'reason':
+                del_stock(key, request.POST[key])
+            #respone处理
+            elif key == 'monitor_input':
                 sql = ""
                 res = sel_stock_list(cursor,sql)
                 print('res:',res)
-                data_list = sel_stock_k_date(res)
+                data_list = sel_stock_k_date(res,table='monitor')
                 print('data_list_len:', len(data_list))
                 context['data'] = data_list  # [['2015-10-16',18.4,18.58,18.33,18.79,67.00,1,0.04,0.11,0.09],['2015-10-19',18.56,18.25,18.19,18.56,55.00,0,-0.00,0.08,0.09]]
                 # context['hello'] = 'hello world!'
@@ -94,31 +106,32 @@ def runoob(request):
                          'remen_5_grade_s','remen_5_grade_e'):
                 remen_5_param_dict[key] = request.POST[key]
         if len(remen_xiaoboxin_param_dict) != 0:
-            sql = 'select distinct Z.stock_id,Z.stock_name,Z.zhuang_grade,I.h_table,I.bk_name from com_zhuang Z '\
+            sql = 'select distinct Z.trade_code,Z.stock_id,Z.stock_name,Z.grade,I.h_table,I.bk_name,Z.trade_code from remen_xiaoboxin Z '\
                            'left join stock_informations I '\
                            'on Z.stock_id = I.stock_id '\
-                           'where zhuang_grade >= "{0}" and zhuang_grade <"{1}" '.format(remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_grade_s'],
-                                                                                         remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_grade_e'])
+                           'where monitor = 1 and grade >= "{0}" and grade <"{1}" and trade_date ="{2}"'.format(remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_grade_s'],
+                                                                                         remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_grade_e'],remen_xiaoboxin_param_dict['remen_xiaoboxin_B_today_input'])
             res = sel_stock_list(cursor, sql)
-            data_list = sel_stock_k_date(res,date_s=remen_xiaoboxin_param_dict['zhuang_input_date_s'],date_e=remen_xiaoboxin_param_dict['zhuang_input_date_e'])
+            data_list = sel_stock_k_date(res,table='xiaoboxin',date_s=remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_date_s'],
+                                         date_e=remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_date_e'])
             context['data'] = data_list
         elif len(zhuang_param_dict) != 0:
-            sql = 'select distinct Z.stock_id,Z.stock_name,Z.zhuang_grade,I.h_table,I.bk_name from com_zhuang Z '\
+            sql = 'select distinct Z.stock_id,Z.stock_id,Z.stock_name,Z.zhuang_grade,I.h_table,I.bk_name from com_zhuang Z '\
                            'left join stock_informations I '\
                            'on Z.stock_id = I.stock_id '\
-                           'where zhuang_grade >= "{0}" and zhuang_grade <"{1}" '.format(zhuang_param_dict['zhuang_input_grade_s'],
+                           'where monitor = 1 and zhuang_grade >= "{0}" and zhuang_grade <"{1}" '.format(zhuang_param_dict['zhuang_input_grade_s'],
                                                                                          zhuang_param_dict['zhuang_input_grade_e'])
             res = sel_stock_list(cursor, sql)
-            data_list = sel_stock_k_date(res,date_s=zhuang_param_dict['zhuang_input_date_s'],date_e=zhuang_param_dict['zhuang_input_date_e'])
+            data_list = sel_stock_k_date(res,table='zhuang',date_s=zhuang_param_dict['zhuang_input_date_s'],date_e=zhuang_param_dict['zhuang_input_date_e'])
             context['data'] = data_list
         elif len(remen_5_param_dict) != 0:
-            sql = 'select distinct Z.stock_id,Z.stock_name,Z.zhuang_grade,I.h_table,I.bk_name from com_zhuang Z '\
+            sql = 'select distinct Z.trade_code,Z.stock_id,Z.stock_name,Z.redu_5,I.h_table,I.bk_name from com_redu_test Z '\
                            'left join stock_informations I '\
                            'on Z.stock_id = I.stock_id '\
-                           'where zhuang_grade >= "{0}" and zhuang_grade <"{1}" '.format(zhuang_param_dict['zhuang_input_grade_s'],
-                                                                                         zhuang_param_dict['zhuang_input_grade_e'])
+                           'where monitor = 1 and redu_5 >= "{0}" and redu_5 <"{1}" and trade_date ="{2}"'.format(remen_5_param_dict['remen_5_grade_s'],
+                                                                                         remen_5_param_dict['remen_5_grade_e'],remen_5_param_dict['remen_5_today_input'])
             res = sel_stock_list(cursor, sql)
-            data_list = sel_stock_k_date(res,date_s=zhuang_param_dict['zhuang_input_date_s'],date_e=zhuang_param_dict['zhuang_input_date_e'])
+            data_list = sel_stock_k_date(res,table='remen_five',date_s=remen_5_param_dict['remen_5_date_s'],date_e=remen_5_param_dict['remen_5_date_e'])
             context['data'] = data_list
         # reason = request.POST['reason']
         # re_res = re.findall('.*?reson(.*?)=(.*?)',bytes(request.body,encoding = "utf-8").decode())
