@@ -30,7 +30,7 @@ def sel_stock_k_date(res,table,date_e = None,date_s = '2020-08-01'):
         # print('stock:',stock)
         id = stock[1]
         h_tab = stock[4]
-        # print('id:',id)
+        print('id:',id)
         if date_e == None:
             sql = 'select date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
                        ' from stock_history_trade{0} where stock_id = "{1}" and trade_date > "{2}"'.format(h_tab,id,date_s)
@@ -87,9 +87,9 @@ def runoob(request):
             #respone处理
             elif key == 'monitor_input':
                 sql = 'select  Z.trade_code,Z.stock_id,Z.stock_name,Z.grade,I.h_table,I.bk_name,Z.trade_code from monitor Z '\
-                           'left join stock_informations I '\
+                           'inner join stock_informations I '\
                            'on Z.stock_id = I.stock_id '\
-                           'where monitor = 1 and trade_date ="{0}" '.format(request.POST[key])
+                           'where monitor = 1 and trade_date ="{0}"  '.format(request.POST[key])
                 res = sel_stock_list(cursor,sql)
                 print('res:',res)
                 data_list = sel_stock_k_date(res,table='monitor')
