@@ -39,7 +39,7 @@
         return start_date_str
     }
     function init_html(option){
-        let today_str = com_date(date,delta_date = 1)
+        let today_str = com_date(date,delta_date = 0)
         if (option == "monitor"){
             let end_date_str = date_2_str(date)
             var param=document.getElementsByClassName('param')[0]
