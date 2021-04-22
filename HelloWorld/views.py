@@ -24,43 +24,87 @@ def sel_stock_list(cursor,sql):
     #     id_list.append(tup[0])
     # print('id:',id_list)
     return res
+# def sel_stock_k_date(res,table,date_e = None,date_s = '2020-08-01'):
+#     data_list = []
+#     h_tab_dic ={}
+#     stock_info = {}
+#     for stock in res:
+#         # print('stock:',stock)
+#         id = stock[1]
+#         h_tab = stock[4]
+#         # print('id:',id)
+#         if h_tab == None:
+#             continue
+#         if h_tab not in h_tab_dic:
+#             h_tab_dic[h_tab] = [id]
+#         else:
+#             h_tab_dic[h_tab].append(id)
+#         info = str(stock[0]) +' '+ str(stock[2]) +' ' + str(stock[3])+' ' + str(stock[5])
+#         tag = stock[0]
+#         stock_info[id] = (info,tag)
+#     rows_list = []
+#     for h_tab in h_tab_dic:
+#         if len(h_tab_dic[h_tab]) == 0:
+#             continue
+#         elif len(h_tab_dic[h_tab]) == 1:
+#             h_tab_dic[h_tab].append('fill')
+#         id_tup = tuple(h_tab_dic[h_tab])
+#         if date_e == None:
+#             sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
+#                        ' from stock_history_trade{0} where stock_id in {1} and trade_date > "{2}" '.format(h_tab,id_tup,date_s)
+#         else:
+#             sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
+#                        ' from stock_history_trade{0} where stock_id in {1} and trade_date > "{2}" and trade_date <= "{3}" '.format(h_tab,id_tup,date_s,date_e)
+#         print('sql:',sql)
+#         cursor.execute(sql)
+#         rows = cursor.fetchall()
+#         # print('rows:',rows)
+#         rows_list.extend(list(rows))
+#         print('rows_list:',rows_list)
+#     stcok_dict = {}
+#     for tup in rows_list:
+#         if tup[0] not in stcok_dict:
+#             stcok_dict[tup[0]] = [list(tup[1:])]
+#         else:
+#             stcok_dict[tup[0]].append(list(tup[1:]))
+#     print('stcok_dict_len:',len(stcok_dict))
+#     for stock in stcok_dict:
+#         stcok_data = stcok_dict[stock]
+#         info =  stock_info[stock][0]
+#         tag =  stock_info[stock][1]
+#         rows_list = [table,tag,info,stcok_data]
+#         # data_list = {table,code(t_code | id),info(id,name,grade),[data]}
+#         data_list.append(rows_list)
+#     print('data_list:',data_list)
+#     return data_list
+#         # print('row:',rows[i])
+#         # print(rows)
 def sel_stock_k_date(res,table,date_e = None,date_s = '2020-08-01'):
     data_list = []
-    h_tab_dic ={}
     stock_info = {}
+    id_list = []
     for stock in res:
         # print('stock:',stock)
         id = stock[1]
-        h_tab = stock[4]
-        # print('id:',id)
-        if h_tab == None:
-            continue
-        if h_tab not in h_tab_dic:
-            h_tab_dic[h_tab] = [id]
-        else:
-            h_tab_dic[h_tab].append(id)
+        id_list.append(id)
         info = str(stock[0]) +' '+ str(stock[2]) +' ' + str(stock[3])+' ' + str(stock[5])
         tag = stock[0]
         stock_info[id] = (info,tag)
     rows_list = []
-    for h_tab in h_tab_dic:
-        if len(h_tab_dic[h_tab]) == 0:
-            continue
-        elif len(h_tab_dic[h_tab]) == 1:
-            h_tab_dic[h_tab].append('fill')
-        id_tup = tuple(h_tab_dic[h_tab])
-        if date_e == None:
-            sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
-                       ' from stock_history_trade{0} where stock_id in {1} and trade_date > "{2}" '.format(h_tab,id_tup,date_s)
-        else:
-            sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
-                       ' from stock_history_trade{0} where stock_id in {1} and trade_date > "{2}" and trade_date <= "{3}" '.format(h_tab,id_tup,date_s,date_e)
-        print('sql:',sql)
-        cursor.execute(sql)
-        rows = cursor.fetchall()
-        # print('rows:',rows)
-        rows_list.extend(list(rows))
-        print('rows_list:',rows_list)
+    id_tup = tuple(id_list)
+    if date_e == None:
+        sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
+                   ' from stock_trade_data where stock_id in {0} and trade_date > "{1}" '.format(id_tup,date_s)
+    else:
+        sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
+                   ' from stock_trade_data where stock_id in {0} and trade_date > "{1}" and trade_date <= "{2}" '.format(id_tup,date_s,date_e)
+    print('sql:',sql)
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    # print('rows:',rows)
+    rows_list.extend(list(rows))
+    print('rows_list:',rows_list)
+
     stcok_dict = {}
     for tup in rows_list:
         if tup[0] not in stcok_dict:
