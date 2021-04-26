@@ -24,61 +24,7 @@ def sel_stock_list(cursor,sql):
     #     id_list.append(tup[0])
     # print('id:',id_list)
     return res
-# def sel_stock_k_date(res,table,date_e = None,date_s = '2020-08-01'):
-#     data_list = []
-#     h_tab_dic ={}
-#     stock_info = {}
-#     for stock in res:
-#         # print('stock:',stock)
-#         id = stock[1]
-#         h_tab = stock[4]
-#         # print('id:',id)
-#         if h_tab == None:
-#             continue
-#         if h_tab not in h_tab_dic:
-#             h_tab_dic[h_tab] = [id]
-#         else:
-#             h_tab_dic[h_tab].append(id)
-#         info = str(stock[0]) +' '+ str(stock[2]) +' ' + str(stock[3])+' ' + str(stock[5])
-#         tag = stock[0]
-#         stock_info[id] = (info,tag)
-#     rows_list = []
-#     for h_tab in h_tab_dic:
-#         if len(h_tab_dic[h_tab]) == 0:
-#             continue
-#         elif len(h_tab_dic[h_tab]) == 1:
-#             h_tab_dic[h_tab].append('fill')
-#         id_tup = tuple(h_tab_dic[h_tab])
-#         if date_e == None:
-#             sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
-#                        ' from stock_history_trade{0} where stock_id in {1} and trade_date > "{2}" '.format(h_tab,id_tup,date_s)
-#         else:
-#             sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
-#                        ' from stock_history_trade{0} where stock_id in {1} and trade_date > "{2}" and trade_date <= "{3}" '.format(h_tab,id_tup,date_s,date_e)
-#         print('sql:',sql)
-#         cursor.execute(sql)
-#         rows = cursor.fetchall()
-#         # print('rows:',rows)
-#         rows_list.extend(list(rows))
-#         print('rows_list:',rows_list)
-#     stcok_dict = {}
-#     for tup in rows_list:
-#         if tup[0] not in stcok_dict:
-#             stcok_dict[tup[0]] = [list(tup[1:])]
-#         else:
-#             stcok_dict[tup[0]].append(list(tup[1:]))
-#     print('stcok_dict_len:',len(stcok_dict))
-#     for stock in stcok_dict:
-#         stcok_data = stcok_dict[stock]
-#         info =  stock_info[stock][0]
-#         tag =  stock_info[stock][1]
-#         rows_list = [table,tag,info,stcok_data]
-#         # data_list = {table,code(t_code | id),info(id,name,grade),[data]}
-#         data_list.append(rows_list)
-#     print('data_list:',data_list)
-#     return data_list
-#         # print('row:',rows[i])
-#         # print(rows)
+
 def sel_stock_k_date(res,table,date_e = None,date_s = '2020-08-01'):
     data_list = []
     stock_info = {}
@@ -180,6 +126,14 @@ def runoob(request):
             elif key in ('remen_5_date_s','remen_5_date_e','remen_5_today_input',
                          'remen_5_grade_s','remen_5_grade_e'):
                 remen_5_param_dict[key] = request.POST[key]
+            elif key == 'user_define':
+                print('value:',request.POST[key])
+                sql = request.POST[key]
+                res = sel_stock_list(cursor,sql)
+                print('res:',res)
+                data_list = sel_stock_k_date(res,table='user_define')
+                print('data_list_len:', len(data_list))
+                context['data'] = data_list
         if len(remen_xiaoboxin_param_dict) != 0:
             sql = 'select distinct Z.trade_code,Z.stock_id,Z.stock_name,Z.grade,I.h_table,I.bk_name,Z.trade_code from remen_xiaoboxin Z '\
                            'left join stock_informations I '\

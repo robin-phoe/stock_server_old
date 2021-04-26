@@ -12,6 +12,7 @@
 <input type='button' class="remen_xiaoboxin_B " onclick="init_html('remen_xiaoboxin_B')" value="热门小波形"></input>
 <input type='button' class="zhuang" onclick="init_html('zhuang')" value="庄线"></input>
 <input type='button' class="remen_5" onclick="init_html('remen_5')" value="热门5日线"></input>
+<input type='button' class="user_define" onclick="init_html('user_define')" value="自定义"></input>
 <div class="param" ></div>
 <div class="k_charts" id="k_charts">
     <div class="content" ></div>
@@ -86,6 +87,12 @@
                             <td>开始日期:</td><input type="text" name="remen_5_date_s" value="${start_date_str}">
                             <td>终止日期:</td><input type="text" name="remen_5_date_e" value="${end_date_str}">
                             <input type="submit" value="查询" id="remen_5_btn"></form>`;
+        }
+        else if (option == "user_define"){
+            var param=document.getElementsByClassName('param')[0]
+            param.innerHTML=`<form method="POST"  style="padding-left:100px;padding-right:100px;top:0px" >
+                            <td>sql:</td><input type="text" name="user_define" value="">
+                            <input type="submit" value="查询" id="user_define_btn"></form>`;
         }
     }
 
