@@ -6,8 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 import datetime
 import json
 import re
-cursor = connection.cursor()
-def sel_stock_list(cursor,sql):
+
+def sel_stock_list(sql):
     # sql = 'select distinct Z.stock_id,Z.stock_name,Z.zhuang_grade,I.h_table,I.bk_name from com_zhuang Z '\
     #                'left join stock_informations I '\
     #                'on Z.stock_id = I.stock_id '\
@@ -16,8 +16,10 @@ def sel_stock_list(cursor,sql):
     #                'left join stock_informations I '\
     #                'on Z.stock_id = I.stock_id '\
     #                'where redu_5 >= 10000 and trade_date = "2021-04-02" order redu_5 DESC '
+    cursor = connection.cursor()
     cursor.execute(sql)
     res = cursor.fetchall()
+    cursor.close()
     # res = [('000617','中油资本',111,'7','test'),] * 100
     # id_list = []
     # for tup in res:
@@ -45,8 +47,10 @@ def sel_stock_k_date(res,table,date_e = None,date_s = '2020-08-01'):
         sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
                    ' from stock_trade_data where stock_id in {0} and trade_date > "{1}" and trade_date <= "{2}" '.format(id_tup,date_s,date_e)
     print('sql:',sql)
+    cursor = connection.cursor()
     cursor.execute(sql)
     rows = cursor.fetchall()
+    cursor.close()
     # print('rows:',rows)
     rows_list.extend(list(rows))
     print('rows_list:',rows_list)
@@ -82,7 +86,9 @@ def del_stock(key,value):
     elif reason_type == 'monitor':
         sql = "UPDATE monitor SET monitor = 0,reason = '{0}' where trade_code = '{1}'".format(value, code)
     print('sql:',sql)
+    cursor = connection.cursor()
     cursor.execute(sql)
+    cursor.close()
 def hello(request):
     return HttpResponse('hello world!')
 @csrf_exempt
@@ -107,7 +113,7 @@ def runoob(request):
                            'inner join stock_informations I '\
                            'on Z.stock_id = I.stock_id '\
                            'where monitor = 1 and trade_date ="{0}"  '.format(request.POST[key])
-                res = sel_stock_list(cursor,sql)
+                res = sel_stock_list(sql)
                 print('res:',res)
                 data_list = sel_stock_k_date(res,table='monitor')
                 print('data_list_len:', len(data_list))
@@ -129,7 +135,7 @@ def runoob(request):
             elif key == 'user_define':
                 print('value:',request.POST[key])
                 sql = request.POST[key]
-                res = sel_stock_list(cursor,sql)
+                res = sel_stock_list(sql)
                 print('res:',res)
                 data_list = sel_stock_k_date(res,table='user_define')
                 print('data_list_len:', len(data_list))
@@ -140,7 +146,7 @@ def runoob(request):
                            'on Z.stock_id = I.stock_id '\
                            'where monitor = 1 and grade >= "{0}" and grade <"{1}" and trade_date ="{2}" order by grade DESC'.format(remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_grade_s'],
                                                                                          remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_grade_e'],remen_xiaoboxin_param_dict['remen_xiaoboxin_B_today_input'])
-            res = sel_stock_list(cursor, sql)
+            res = sel_stock_list(sql)
             data_list = sel_stock_k_date(res,table='xiaoboxin',date_s=remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_date_s'],
                                          date_e=remen_xiaoboxin_param_dict['remen_xiaoboxin_B_input_date_e'])
             context['data'] = data_list
@@ -150,7 +156,7 @@ def runoob(request):
                            'on Z.stock_id = I.stock_id '\
                            'where monitor = 1 and zhuang_grade >= "{0}" and zhuang_grade <"{1}" order by zhuang_grade DESC'.format(zhuang_param_dict['zhuang_input_grade_s'],
                                                                                          zhuang_param_dict['zhuang_input_grade_e'])
-            res = sel_stock_list(cursor, sql)
+            res = sel_stock_list(sql)
             data_list = sel_stock_k_date(res,table='zhuang',date_s=zhuang_param_dict['zhuang_input_date_s'],date_e=zhuang_param_dict['zhuang_input_date_e'])
             context['data'] = data_list
         elif len(remen_5_param_dict) != 0:
@@ -159,7 +165,7 @@ def runoob(request):
                            'on Z.stock_id = I.stock_id '\
                            'where monitor = 1 and redu_5 >= "{0}" and redu_5 <"{1}" and trade_date ="{2}" order by redu_5 DESC'.format(remen_5_param_dict['remen_5_grade_s'],
                                                                                          remen_5_param_dict['remen_5_grade_e'],remen_5_param_dict['remen_5_today_input'])
-            res = sel_stock_list(cursor, sql)
+            res = sel_stock_list(sql)
             data_list = sel_stock_k_date(res,table='remen_five',date_s=remen_5_param_dict['remen_5_date_s'],date_e=remen_5_param_dict['remen_5_date_e'])
             context['data'] = data_list
         # reason = request.POST['reason']
