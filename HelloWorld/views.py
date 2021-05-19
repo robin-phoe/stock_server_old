@@ -165,7 +165,9 @@ def runoob(request):
                            'on Z.stock_id = I.stock_id '\
                            'where monitor = 1 and redu_5 >= "{0}" and redu_5 <"{1}" and trade_date ="{2}" order by redu_5 DESC'.format(remen_5_param_dict['remen_5_grade_s'],
                                                                                          remen_5_param_dict['remen_5_grade_e'],remen_5_param_dict['remen_5_today_input'])
+            print('sql:',sql)
             res = sel_stock_list(sql)
+            print('date:',remen_5_param_dict['remen_5_date_s'],remen_5_param_dict['remen_5_date_e'])
             data_list = sel_stock_k_date(res,table='remen_five',date_s=remen_5_param_dict['remen_5_date_s'],date_e=remen_5_param_dict['remen_5_date_e'])
             context['data'] = data_list
         # reason = request.POST['reason']
