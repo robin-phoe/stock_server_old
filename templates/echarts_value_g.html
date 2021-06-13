@@ -130,42 +130,66 @@
       };
     }
 
+<!--    //分段计算-->
+<!--    function fenduans(data){-->
+<!--      var markLineData = [];-->
+<!--      var idx = 0; var tag = 0; var vols = 0;-->
+<!--      for (var i = 0; i < data.times.length; i++) {-->
+<!--          //初始化数据-->
+<!--          if(data.datas[i][5] != 0 && tag == 0){-->
+<!--              idx = i; vols = data.datas[i][4]; tag = 1;-->
+<!--          }-->
+<!--          if(tag == 1){ vols += data.datas[i][4]; }-->
+<!--          if(data.datas[i][5] != 0 && tag == 1){-->
+<!--              markLineData.push([{-->
+<!--                  xAxis: idx,-->
+<!--                  yAxis: data.datas[idx][1]>data.datas[idx][0]?(data.datas[idx][3]).toFixed(2):(data.datas[idx][2]).toFixed(2),-->
+<!--                  value: vols-->
+<!--              }, {-->
+<!--                  xAxis: i,-->
+<!--                  yAxis: data.datas[i][1]>data.datas[i][0]?(data.datas[i][3]).toFixed(2):(data.datas[i][2]).toFixed(2)-->
+<!--              }]);-->
+<!--              idx = i; vols = data.datas[i][4]; tag = 2;-->
+<!--          }-->
+
+<!--          //更替数据-->
+<!--          if(tag == 2){ vols += data.datas[i][4]; }-->
+<!--          if(data.datas[i][5] != 0 && tag == 2){-->
+<!--              markLineData.push([{-->
+<!--                  xAxis: idx,-->
+<!--                  yAxis: data.datas[idx][1]>data.datas[idx][0]?(data.datas[idx][3]).toFixed(2):(data.datas[idx][2]).toFixed(2),-->
+<!--                  value: (vols/(i-idx+1)).toFixed(2)-->
+<!--              }, {-->
+<!--                  xAxis: i,-->
+<!--                  yAxis: data.datas[i][1]>data.datas[i][0]?(data.datas[i][3]).toFixed(2):(data.datas[i][2]).toFixed(2)-->
+<!--              }]);-->
+<!--              idx = i; vols = data.datas[i][4];-->
+<!--          }-->
+<!--      }-->
+<!--      return markLineData;-->
+<!--    }-->
+
     //分段计算
     function fenduans(data){
       var markLineData = [];
       var idx = 0; var tag = 0; var vols = 0;
       for (var i = 0; i < data.times.length; i++) {
-          //初始化数据
-          if(data.datas[i][5] != 0 && tag == 0){
-              idx = i; vols = data.datas[i][4]; tag = 1;
-          }
-          if(tag == 1){ vols += data.datas[i][4]; }
-          if(data.datas[i][5] != 0 && tag == 1){
+
+          if(data.datas[i][5] != 0 ){
+              if (tag == 0){
+                idx = i;
+                continue;
+              }
               markLineData.push([{
                   xAxis: idx,
-                  yAxis: data.datas[idx][1]>data.datas[idx][0]?(data.datas[idx][3]).toFixed(2):(data.datas[idx][2]).toFixed(2),
+                  yAxis: data.datas[idx][5] == 'l'?(data.datas[idx][3]).toFixed(2):(data.datas[idx][2]).toFixed(2),
                   value: vols
               }, {
                   xAxis: i,
-                  yAxis: data.datas[i][1]>data.datas[i][0]?(data.datas[i][3]).toFixed(2):(data.datas[i][2]).toFixed(2)
+                  yAxis: data.datas[idx][5] == 'l'?(data.datas[idx][3]).toFixed(2):(data.datas[idx][2]).toFixed(2),
               }]);
-              idx = i; vols = data.datas[i][4]; tag = 2;
+              idx = i; vols = data.datas[i][4]; tag = 1;
           }
-
-          //更替数据
-          if(tag == 2){ vols += data.datas[i][4]; }
-          if(data.datas[i][5] != 0 && tag == 2){
-              markLineData.push([{
-                  xAxis: idx,
-                  yAxis: data.datas[idx][1]>data.datas[idx][0]?(data.datas[idx][3]).toFixed(2):(data.datas[idx][2]).toFixed(2),
-                  value: (vols/(i-idx+1)).toFixed(2)
-              }, {
-                  xAxis: i,
-                  yAxis: data.datas[i][1]>data.datas[i][0]?(data.datas[i][3]).toFixed(2):(data.datas[i][2]).toFixed(2)
-              }]);
-              idx = i; vols = data.datas[i][4];
-          }
-      }
       return markLineData;
     }
 
