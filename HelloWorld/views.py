@@ -6,27 +6,31 @@ from django.views.decorators.csrf import csrf_exempt
 import datetime
 import json
 import re
+import pandas as pd
 
+def get_df_from_db(sql):
+    cursor = connection.cursor()
+    cursor.execute(sql)  # 执行SQL语句
+    data = cursor.fetchall()
+    # 下面为将获取的数据转化为dataframe格式
+    columnDes = cursor.description  # 获取连接对象的描述信息
+    columnNames = [columnDes[i][0] for i in range(len(columnDes))]  # 获取列名
+    df = pd.DataFrame([list(i) for i in data], columns=columnNames)  # 得到的data为二维元组，逐行取出，转化为列表，再转化为df
+    # df = df.set_index(keys=['trade_date'])
+    if 'trade_date' in df.columns:
+        df = df.sort_values(axis=0, ascending=True, by='trade_date', na_position='last')
+    # df.reset_index(inplace=True)
+    cursor.close()
+    # print('df:',df)
+    # df['trade_date'] = date2num(df['trade_date'])
+    # print('df:', df[['avg_10', 'close_price']])
+    return df
 def sel_stock_list(sql):
-    # sql = 'select distinct Z.stock_id,Z.stock_name,Z.zhuang_grade,I.h_table,I.bk_name from com_zhuang Z '\
-    #                'left join stock_informations I '\
-    #                'on Z.stock_id = I.stock_id '\
-    #                'where zhuang_grade >= 1000 and zhuang_grade <10000 '
-    # sql = 'select distinct Z.stock_id,Z.stock_name,Z.redu_5,I.h_table,I.bk_name from com_redu_test Z '\
-    #                'left join stock_informations I '\
-    #                'on Z.stock_id = I.stock_id '\
-    #                'where redu_5 >= 10000 and trade_date = "2021-04-02" order redu_5 DESC '
     cursor = connection.cursor()
     cursor.execute(sql)
     res = cursor.fetchall()
     cursor.close()
-    # res = [('000617','中油资本',111,'7','test'),] * 100
-    # id_list = []
-    # for tup in res:
-    #     id_list.append(tup[0])
-    # print('id:',id_list)
     return res
-
 def sel_stock_k_date(res,table,date_e = None,date_s = '2020-08-01'):
     data_list = []
     stock_info = {}
@@ -41,19 +45,25 @@ def sel_stock_k_date(res,table,date_e = None,date_s = '2020-08-01'):
     rows_list = []
     id_tup = tuple(id_list)
     if date_e == None:
-        sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
+        sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,wave_data,0,0,0  '\
                    ' from stock_trade_data where stock_id in {0} and trade_date > "{1}" '.format(id_tup,date_s)
     else:
-        sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,0,0,0,0  '\
+        sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,wave_data,0,0,0  '\
                    ' from stock_trade_data where stock_id in {0} and trade_date > "{1}" and trade_date <= "{2}" '.format(id_tup,date_s,date_e)
     print('sql:',sql)
-    cursor = connection.cursor()
-    cursor.execute(sql)
-    rows = cursor.fetchall()
-    cursor.close()
-    # print('rows:',rows)
-    rows_list.extend(list(rows))
-    print('rows_list:',rows_list)
+    #换成df
+    # cursor = connection.cursor()
+    # cursor.execute(sql)
+    # rows = cursor.fetchall()
+    # cursor.close()
+    # # print('rows:',rows)
+    # rows_list.extend(list(rows))
+    # print('rows_list:',rows_list)
+
+    trade_df = get_df_from_db(sql)
+    # print("trade_df['wave_data']:", trade_df['wave_data'])
+    trade_df['wave_data'] = trade_df['wave_data'].apply(lambda x: 1 if float(x)>0 else 0)
+    rows_list = trade_df.values.tolist()
 
     stcok_dict = {}
     for tup in rows_list:
@@ -69,7 +79,7 @@ def sel_stock_k_date(res,table,date_e = None,date_s = '2020-08-01'):
         rows_list = [table,tag,info,stcok_data]
         # data_list = {table,code(t_code | id),info(id,name,grade),[data]}
         data_list.append(rows_list)
-    print('data_list:',data_list)
+    # print('data_list:',data_list)
     return data_list
         # print('row:',rows[i])
         # print(rows)
@@ -91,6 +101,28 @@ def del_stock(key,value):
     cursor.close()
 def hello(request):
     return HttpResponse('hello world!')
+# def deal_wave():
+#     sql = "SELECT * FROM boxin_data"
+#     wave_init_df = get_df_from_db(sql)
+#
+#     data = {'stock_id': [],
+#             'trade_date': [],
+#             'wave_price': [],
+#             }
+#     wave_df = pd.DataFrame(data)
+#
+#     #可使用二维列表转df优化，目前存储为三维[((),()),]
+#     def wave_list_2_dict(raw):
+#         data_list = raw['data_list']
+#         wave_dict = {}
+#         wave_list = json.loads(data_list)
+#         for group_tuple in wave_list:
+#             for day in group_tuple:
+#                 wave_df.loc[len(wave_df)] = [raw[stock_id],day[0],day[1]]
+#         return raw
+#     wave_init_df.apply(wave_list_2_dict,axis=1)
+
+
 @csrf_exempt
 def runoob(request):
     context = {}
@@ -114,7 +146,7 @@ def runoob(request):
                            'on Z.stock_id = I.stock_id '\
                            'where monitor = 1 and trade_date ="{0}"  '.format(request.POST[key])
                 res = sel_stock_list(sql)
-                print('res:',res)
+                # print('res:',res)
                 data_list = sel_stock_k_date(res,table='monitor')
                 print('data_list_len:', len(data_list))
                 context['data'] = data_list  # [['2015-10-16',18.4,18.58,18.33,18.79,67.00,1,0.04,0.11,0.09],['2015-10-19',18.56,18.25,18.19,18.56,55.00,0,-0.00,0.08,0.09]]
@@ -136,7 +168,7 @@ def runoob(request):
                 print('value:',request.POST[key])
                 sql = request.POST[key]
                 res = sel_stock_list(sql)
-                print('res:',res)
+                # print('res:',res)
                 data_list = sel_stock_k_date(res,table='user_define')
                 print('data_list_len:', len(data_list))
                 context['data'] = data_list
@@ -167,14 +199,14 @@ def runoob(request):
                                                                                          remen_5_param_dict['remen_5_grade_e'],remen_5_param_dict['remen_5_today_input'])
             print('sql:',sql)
             res = sel_stock_list(sql)
-            print('date:',remen_5_param_dict['remen_5_date_s'],remen_5_param_dict['remen_5_date_e'])
+            # print('date:',remen_5_param_dict['remen_5_date_s'],remen_5_param_dict['remen_5_date_e'])
             data_list = sel_stock_k_date(res,table='remen_five',date_s=remen_5_param_dict['remen_5_date_s'],date_e=remen_5_param_dict['remen_5_date_e'])
             context['data'] = data_list
         # reason = request.POST['reason']
         # re_res = re.findall('.*?reson(.*?)=(.*?)',bytes(request.body,encoding = "utf-8").decode())
         # print('re_res:',re_res)
     return render(request,'echarts_value_g.html',context)
-    # return render(request, 'test_page.html', context)
+    # return render(request, 'html_base.html', context)
 # def receive(request):
 #     if request.POST:
 #         print(request.POST.body)

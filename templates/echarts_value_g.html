@@ -158,7 +158,7 @@
               markLineData.push([{
                   xAxis: idx,
                   yAxis: data.datas[idx][1]>data.datas[idx][0]?(data.datas[idx][3]).toFixed(2):(data.datas[idx][2]).toFixed(2),
-                  value: (vols/(i-idx+1)).toFixed(2)+' M'
+                  value: (vols/(i-idx+1)).toFixed(2)
               }, {
                   xAxis: i,
                   yAxis: data.datas[i][1]>data.datas[i][0]?(data.datas[i][3]).toFixed(2):(data.datas[i][2]).toFixed(2)
@@ -291,18 +291,19 @@
                           normal: {
                               color: '#ef232a',
                               color0: '#14b143',
-                              borderColor: '#ef232a'
+                              borderColor: '#ef232a',
+                              borderColor0: '#14b143',
                           }
                       },
-                      markArea: {
-                          silent: true,
-                          itemStyle: {
-                              normal: {
-                                  color: 'Honeydew'
-                              }
-                          },
-                          data: fenduans(data)
-                      },
+<!--                      markArea: {-->
+<!--                          silent: true,-->
+<!--                          itemStyle: {-->
+<!--                              normal: {-->
+<!--                                  color: 'Honeydew'-->
+<!--                              }-->
+<!--                          },-->
+<!--                          data: fenduans(data)-->
+<!--                      },-->
                       markPoint: {
                           data: [
                               {type: 'max', name: '最大值'},
@@ -313,11 +314,14 @@
                           label: {
                               normal: {
                                   position: 'middle',
-                                  textStyle:{color:'Blue',fontSize: 15}
+                                  textStyle:{color:'Blue',fontSize: 8}
                               }
                           },
+                          lineStyle:{
+                            color:'black',//'gold',
+                          },
                           data: fenduans(data),
-                          symbol: ['circle', 'none']
+                          symbol: ['none', 'none']
 
                       }
                   }, {
