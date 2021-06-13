@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>股票</title>
+    <!-- 引入ECharts文件 -->
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+    <script src="./echarts.js"></script >
+</head>
+<body>
+<input type='button' class="monitor" onclick="init_html('monitor')" value="监控">
+<input type='button' class="remen_xiaoboxin_B " onclick="init_html('remen_xiaoboxin_B')" value="热门小波形"></input>
+<input type='button' class="zhuang" onclick="init_html('zhuang')" value="庄线"></input>
+<input type='button' class="remen_5" onclick="init_html('remen_5')" value="热门5日线"></input>
+<input type='button' class="user_define" onclick="init_html('user_define')" value="自定义"></input>
+<div class="param" ></div>
+<div class="k_charts" id="k_charts">
+    <div class="content" ></div>
+    <div class="page" ></div>
+</div>
+</body>
+</html>

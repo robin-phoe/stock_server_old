@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from django.urls import path
-from . import views,testdb
+from . import views
 
 urlpatterns = [
     # url(r'^$',views.hello),
@@ -9,5 +9,5 @@ urlpatterns = [
 urlpatterns = [
     # url(r'^$',views.hello),
     path('', views.runoob),
-    path('testdb/', testdb.testdb),
+    # path('testdb/', testdb.testdb),
 ]
