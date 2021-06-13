@@ -45,7 +45,7 @@ def sel_stock_k_date(res,table,date_e = None,date_s = '2020-08-01'):
     rows_list = []
     id_tup = tuple(id_list)
     if date_e == None:
-        sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,wave_data,0,0,0  '\
+        sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,point_type,0,0,0  '\
                    ' from stock_trade_data where stock_id in {0} and trade_date > "{1}" '.format(id_tup,date_s)
     else:
         sql = 'select stock_id,date_format(trade_date ,"%Y-%m-%d") as trade_date,open_price,close_price,low_price,high_price,turnover_rate,wave_data,0,0,0  '\

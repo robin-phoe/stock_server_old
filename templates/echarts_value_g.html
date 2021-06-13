@@ -174,8 +174,8 @@
       var markLineData = [];
       var idx = 0; var tag = 0; var vols = 0;
       for (var i = 0; i < data.times.length; i++) {
-          consol.log(data.datas[i])
-          if(data.datas[i][5] != 0 ){
+          console.log(data.datas[i])
+          if(data.datas[i][5] != '' ){
               if (tag == 0){
                 idx = i;
                 continue;
