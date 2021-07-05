@@ -104,6 +104,10 @@ def del_stock(key, value):
         sql = "UPDATE com_redu_test SET monitor = 0,reason = '{0}' where trade_code = '{1}'".format(value, code)
     elif reason_type == 'monitor':
         sql = "UPDATE monitor SET monitor = 0,reason = '{0}' where trade_code = '{1}'".format(value, code)
+    elif reason_type == 'limit_up_single':
+        sql = "UPDATE limit_up_single SET monitor = 0,reason = '{0}' where trade_code = '{1}'".format(value, code)
+    elif reason_type == 'remen_retracement':
+        sql = "UPDATE remen_retracement SET monitor = 0,reason = '{0}' where trade_code = '{1}'".format(value, code)
     print('sql:', sql)
     cursor = connection.cursor()
     cursor.execute(sql)
@@ -146,6 +150,8 @@ def runoob(request):
         remen_xiaoboxin_param_dict = {}
         zhuang_param_dict = {}
         remen_5_param_dict = {}
+        limit_up_param_dict = {}
+        remen_retrace_param_dict = {}
         for key in request.POST:
             print('value:', key, request.POST[key])
             # del_stock(stock_info=key, reson=request.POST[key], db_field='stock_id', db_table='com_zhuang')
@@ -179,6 +185,12 @@ def runoob(request):
             elif key in ('remen_5_date_s', 'remen_5_date_e', 'remen_5_today_input',
                          'remen_5_grade_s', 'remen_5_grade_e'):
                 remen_5_param_dict[key] = request.POST[key]
+            elif key in ('limit_up_date_s', 'limit_up_date_e', 'limit_up_today_input',
+                         'limit_up_grade_s', 'limit_up_grade_e'):
+                limit_up_param_dict[key] = request.POST[key]
+            elif key in ('remen_retrace_date_s', 'remen_retrace_date_e', 'remen_retrace_today_input',
+                         'remen_retrace_grade_s', 'remen_retrace_grade_e'):
+                remen_retrace_param_dict[key] = request.POST[key]
             elif key == 'user_define':
                 print('value:', request.POST[key])
                 sql = request.POST[key]
@@ -224,9 +236,32 @@ def runoob(request):
             data_list = sel_stock_k_date(res, table='remen_five', date_s=remen_5_param_dict['remen_5_date_s'],
                                          date_e=remen_5_param_dict['remen_5_date_e'])
             context['data'] = data_list
-        # reason = request.POST['reason']
-        # re_res = re.findall('.*?reson(.*?)=(.*?)',bytes(request.body,encoding = "utf-8").decode())
-        # print('re_res:',re_res)
+        if len(limit_up_param_dict) != 0:
+            sql = 'select distinct Z.trade_code,Z.stock_id,Z.stock_name,Z.grade,I.h_table,I.bk_name,Z.trade_code from limit_up_single Z ' \
+                  'left join stock_informations I ' \
+                  'on Z.stock_id = I.stock_id ' \
+                  'where monitor = 1 and grade >= "{0}" and grade <"{1}" and trade_date ="{2}" order by grade DESC'.format(
+                limit_up_param_dict['limit_up_grade_s'],
+                limit_up_param_dict['limit_up_grade_e'],
+                limit_up_param_dict['limit_up_today_input'])
+            res = sel_stock_list(sql)
+            data_list = sel_stock_k_date(res, table='limit_up_single',
+                                         date_s=limit_up_param_dict['limit_up_date_s'],
+                                         date_e=limit_up_param_dict['limit_up_date_e'])
+            context['data'] = data_list
+        if len(remen_retrace_param_dict) != 0:
+            sql = 'select distinct Z.trade_code,Z.stock_id,Z.stock_name,Z.grade,I.h_table,I.bk_name,Z.trade_code from remen_retracement Z ' \
+                  'left join stock_informations I ' \
+                  'on Z.stock_id = I.stock_id ' \
+                  'where monitor = 1 and grade >= "{0}" and grade <"{1}" and trade_date ="{2}" order by grade DESC'.format(
+                remen_retrace_param_dict['remen_retrace_grade_s'],
+                remen_retrace_param_dict['remen_retrace_grade_e'],
+                remen_retrace_param_dict['remen_retrace_today_input'])
+            res = sel_stock_list(sql)
+            data_list = sel_stock_k_date(res, table='remen_retracement',
+                                         date_s=remen_retrace_param_dict['remen_retrace_date_s'],
+                                         date_e=remen_retrace_param_dict['remen_retrace_date_e'])
+            context['data'] = data_list
     return render(request, 'echarts_value_g.html', context)
     # return render(request, 'html_base.html', context)
 # def receive(request):
