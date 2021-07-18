@@ -15,6 +15,8 @@
 <input type='button' class="remen_retrace" onclick="init_html('remen_retrace')" value="热门回撤"></input>
 <input type='button' class="limit_up" onclick="init_html('limit_up')" value="单涨停回撤"></input>
 <input type='button' class="user_define" onclick="init_html('user_define')" value="自定义"></input>
+<input type='button' class="remen_boxin" onclick="init_html('remen_boxin')" value="热门波形"></input>
+<input type='button' class="bk" onclick="init_html('bk')" value="板块"></input>
 <div class="param" ></div>
 <div class="k_charts" id="k_charts">
     <div class="content" ></div>
@@ -114,12 +116,37 @@
                             <td>终止日期:</td><input type="text" name="limit_up_date_e" value="${end_date_str}">
                             <input type="submit" value="查询" id="limit_up_btn"></form>`;
         }
+        else if (option == "remen_boxin"){
+            let end_date_str = date_2_str(date)
+            let start_date_str = com_date(date,delta_date = 180)
+            var param=document.getElementsByClassName('param')[0]
+            param.innerHTML=`<form method="POST"  style="padding-left:100px;padding-right:100px;top:0px" >
+                            <td>目标日期:</td><input type="text" name="remen_boxin_today_input" value="${today_str}">
+                            <td>起始分数:</td><input type="text" name="remen_boxin_grade_s" value="0">
+                            <td>终止分数:</td><input type="text" name="remen_boxin_grade_e" value="10000">
+                            <td>开始日期:</td><input type="text" name="remen_boxin_date_s" value="${start_date_str}">
+                            <td>终止日期:</td><input type="text" name="remen_boxin_date_e" value="${end_date_str}">
+                            <input type="submit" value="查询" id="remen_boxin_btn"></form>`;
+        }
+        else if (option == "bk"){
+            let end_date_str = date_2_str(date)
+            let start_date_str = com_date(date,delta_date = 180)
+            var param=document.getElementsByClassName('param')[0]
+            param.innerHTML=`<form method="POST"  style="padding-left:100px;padding-right:100px;top:0px" >
+                            <td>目标日期:</td><input type="text" name="bk_today_input" value="${today_str}">
+                            <td>起始分数:</td><input type="text" name="bk_grade_s" value="0">
+                            <td>终止分数:</td><input type="text" name="bk_grade_e" value="10000">
+                            <td>开始日期:</td><input type="text" name="bk_date_s" value="${start_date_str}">
+                            <td>终止日期:</td><input type="text" name="bk_date_e" value="${end_date_str}">
+                            <input type="submit" value="查询" id="bk_btn"></form>`;
+        }
         else if (option == "user_define"){
             var param=document.getElementsByClassName('param')[0]
             param.innerHTML=`<form method="POST"  style="padding-left:100px;padding-right:100px;top:0px" >
                             <td>sql:</td><input type="text" name="user_define" value="">
                             <input type="submit" value="查询" id="user_define_btn"></form>`;
         }
+
     }
 
 
