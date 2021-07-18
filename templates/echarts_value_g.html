@@ -254,10 +254,16 @@
     <!--        mycharts = undefined;-->
     <!--        }-->
         for (let i=0;i<end_no;i++){
-            newhtml = newhtml + `<div class="main" style="width: 1200px; height: 500px;padding-left:255px;"></div>` +
-             `<div class="fill" style="width: 1200px; height: 80px;"></div>`
+            // newhtml = newhtml + `<div class="main" style="width: 400px; height: 400px;display:inline-block;"></div>` +
+            //  `<div class="fill" style="width: 400px; height: 80px;display:inline-block;"></div>`
+            // }
+            let float = 'none'
+            if (i%2 != 0){
+                float = 'right'
             }
-            <!--newhtml =`<div class="main" style="width: 1200px; height: 500px;">test1</div>`-->
+            newhtml = newhtml + `<div class="main" style="width: 800px; height: 400px;float:${float};"></div>` +
+             `<div class="fill" style="width: 800px; height: 80px;float:${float};"></div>`
+            }
         var content=document.getElementsByClassName('content')[0]
         content.innerHTML=newhtml
         for (let j=list_start;j<(list_start+end_no);j++){
@@ -448,7 +454,7 @@
             <!--del_but.value = '删除';-->
     <!--        del_but.innerHTML=`<button type="button" class="button btn-light" id="add-btn" onclick="del_div(${j})">删除${i}</button>`-->
     <!--        del_but.innerHTML=`<div style="padding-left:800px;padding-right:100px;top:0px"><input type="text" name="reason+${data_single[0]}" value=""><input type="submit" value="删除" id="add-btn" onSubmit="del_div(0)"></div>`;-->
-            del_but.innerHTML=`<form method="POST"  style="padding-left:800px;padding-right:100px;top:0px" target="iframename">
+            del_but.innerHTML=`<form method="POST"  style="padding-left:100px;top:0px" target="iframename">
                 <input type="text" name="reason${code}${table}" value=""><input type="submit" value="删除" id="add-btn"></form><iframe name="iframename" style="display:none;"></iframe>`;
             document.getElementsByClassName('main')[i].appendChild(del_but);
         }
