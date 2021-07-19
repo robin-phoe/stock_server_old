@@ -48,6 +48,11 @@ def sel_stock_k_date(res, table, date_e=None, date_s='2020-08-01'):
         tag = stock[0]
         stock_info[id] = (info, tag)
     rows_list = []
+    if len(id_list) == 0:
+        pass
+    elif len(id_list) == 1:
+        #单个元素转换为tuple sql查询时会报错
+        id_list.append(id_list[0])
     id_tup = tuple(id_list)
     #板块展示特例
     print('table:',table,id_tup)
@@ -209,7 +214,7 @@ def runoob(request):
                              'remen_boxin_grade_s', 'remen_boxin_grade_e'):
                 remen_boxin_param_dict[key] = request.POST[key]
             elif key in ('bk_date_s', 'bk_date_e', 'bk_today_input',
-                         'bk_grade_s', 'bk_grade_e'):
+                         'bk_grade_s', 'bk_grade_e','bk_name'):
                 bk_param_dict[key] = request.POST[key]
             elif key == 'user_define':
                 print('value:', request.POST[key])
@@ -301,9 +306,14 @@ def runoob(request):
             #     bk_param_dict['bk_grade_s'],
             #     bk_param_dict['bk_grade_e'],
             #     bk_param_dict['bk_today_input'])
+            bk_name = bk_param_dict['bk_name']
             sql = 'select distinct Z.bk_id,Z.bk_code,Z.bk_name,Z.redu,Z.amount,Z.amount,Z.bk_id from bankuai_day_data Z ' \
-                  'where  trade_date ="{0}" order by grade DESC'.format(
+                  'where  trade_date ="{0}" order by redu DESC'.format(
                 bk_param_dict['bk_today_input'])
+            if bk_name != '':
+                sql = 'select distinct Z.bk_id,Z.bk_code,Z.bk_name,Z.redu,Z.amount,Z.amount,Z.bk_id from bankuai_day_data Z ' \
+                      'where  trade_date ="{0}" and bk_name like "%{1}%"'.format(
+                    bk_param_dict['bk_today_input'],bk_name)
             res = sel_stock_list(sql)
             data_list = sel_stock_k_date(res, table='bankuai_day_data',
                                          date_s=bk_param_dict['bk_date_s'],
