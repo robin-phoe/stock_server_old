@@ -33,6 +33,10 @@
     if (data_list.lenght != 0){
         drow_main()
     }
+    else{
+        let newhtml = `<a>当日无数据.</a>`
+        document.getElementsByClassName('content')[0].innerHTML=newhtml
+    }
     function date_2_str(date){
         let end_date_str = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
         return end_date_str

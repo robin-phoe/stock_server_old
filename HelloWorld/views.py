@@ -49,7 +49,7 @@ def sel_stock_k_date(res, table, date_e=None, date_s='2020-08-01'):
         stock_info[id] = (info, tag)
     rows_list = []
     if len(id_list) == 0:
-        pass
+        return []
     elif len(id_list) == 1:
         #单个元素转换为tuple sql查询时会报错
         id_list.append(id_list[0])
