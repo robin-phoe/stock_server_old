@@ -66,7 +66,7 @@
             var param=document.getElementsByClassName('param')[0]
             param.innerHTML=`<form method="POST"  style="padding-left:100px;padding-right:100px;top:0px" >
                             <td>目标日期:</td><input type="text" name="remen_xiaoboxin_B_today_input" value="${today_str}">
-                            <td>起始分数:</td><input type="text" name="remen_xiaoboxin_B_input_grade_s" value="0">
+                            <td>起始分数:</td><input type="text" name="remen_xiaoboxin_B_input_grade_s" value="-100000">
                             <td>终止分数:</td><input type="text" name="remen_xiaoboxin_B_input_grade_e" value="100000">
                             <td>开始日期:</td><input type="text" name="remen_xiaoboxin_B_input_date_s" value="${start_date_str}">
                             <td>终止日期:</td><input type="text" name="remen_xiaoboxin_B_input_date_e" value="${end_date_str}">
@@ -126,8 +126,8 @@
             var param=document.getElementsByClassName('param')[0]
             param.innerHTML=`<form method="POST"  style="padding-left:100px;padding-right:100px;top:0px" >
                             <td>目标日期:</td><input type="text" name="remen_boxin_today_input" value="${today_str}">
-                            <td>起始分数:</td><input type="text" name="remen_boxin_grade_s" value="0">
-                            <td>终止分数:</td><input type="text" name="remen_boxin_grade_e" value="10000">
+                            <td>起始分数:</td><input type="text" name="remen_boxin_grade_s" value="10000">
+                            <td>终止分数:</td><input type="text" name="remen_boxin_grade_e" value="1000000">
                             <td>开始日期:</td><input type="text" name="remen_boxin_date_s" value="${start_date_str}">
                             <td>终止日期:</td><input type="text" name="remen_boxin_date_e" value="${end_date_str}">
                             <input type="submit" value="查询" id="remen_boxin_btn"></form>`;
