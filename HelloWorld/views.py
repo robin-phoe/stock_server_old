@@ -7,6 +7,7 @@ import datetime
 import json
 import re
 import pandas as pd
+from . import pub_uti
 
 
 def get_df_from_db(sql):
@@ -161,6 +162,7 @@ def hello(request):
 def runoob(request):
     context = {}
     context['data'] = []
+    context['bk'] = []
     if request.method == "POST":
         # put_reson = json.loads(request.body)
         print('req:', request.POST)
@@ -171,6 +173,7 @@ def runoob(request):
         remen_retrace_param_dict = {}
         remen_boxin_param_dict = {}
         bk_param_dict = {}
+        bk_summary = {}
         for key in request.POST:
             print('value:', key, request.POST[key])
             # del_stock(stock_info=key, reson=request.POST[key], db_field='stock_id', db_table='com_zhuang')
@@ -187,8 +190,7 @@ def runoob(request):
                 # print('res:',res)
                 data_list = sel_stock_k_date(res, table='monitor')
                 print('data_list_len:', len(data_list))
-                context[
-                    'data'] = data_list  # [['2015-10-16',18.4,18.58,18.33,18.79,67.00,1,0.04,0.11,0.09],['2015-10-19',18.56,18.25,18.19,18.56,55.00,0,-0.00,0.08,0.09]]
+                context['data'] = data_list  # [['2015-10-16',18.4,18.58,18.33,18.79,67.00,1,0.04,0.11,0.09],['2015-10-19',18.56,18.25,18.19,18.56,55.00,0,-0.00,0.08,0.09]]
                 # context['hello'] = 'hello world!'
                 # return render(request,'echarts_value_g.html',context)
                 # return render(request, 'test_page.html', context)
@@ -216,6 +218,8 @@ def runoob(request):
             elif key in ('bk_date_s', 'bk_date_e', 'bk_today_input',
                          'bk_grade_s', 'bk_grade_e','bk_name'):
                 bk_param_dict[key] = request.POST[key]
+            elif key in ('bk_data_date_s','bk_data_date_e','bk_data_grade'):
+                bk_summary[key] = request.POST[key]
             elif key == 'user_define':
                 print('value:', request.POST[key])
                 sql = request.POST[key]
@@ -319,6 +323,27 @@ def runoob(request):
                                          date_s=bk_param_dict['bk_date_s'],
                                          date_e=bk_param_dict['bk_date_e'])
             context['data'] = data_list
+        if len(bk_summary) != 0:
+            sql = "select trade_date,bk_name,bk_code,ranks from bankuai_day_data " \
+                  "where trade_date >= '{0}' and trade_date <='{1}' ".format(bk_summary['bk_data_date_s'],bk_summary['bk_data_date_e'])
+            df = pub_uti.creat_df(sql,ascending=True)
+            # print('df:',df)
+            # df['ranks'] = df['ranks']
+            bk_dict = {}
+            bk_set = set(df['bk_name'])
+            time_list = []
+            for bk_name in bk_set:
+                single_df = df[df.bk_name == bk_name]
+                single_df = single_df.sort_values(axis=0, ascending=True, by='trade_date', na_position='last')
+                ranks_list = single_df['ranks'].to_list()
+                if min(ranks_list) > int(bk_summary['bk_data_grade']):
+                    continue
+                bk_dict[bk_name] = ranks_list
+                time_list = single_df['trade_date'].to_list()
+            print(time_list)
+            bk_summary = {'time':time_list,'data':bk_dict}
+            context['bk'] = bk_summary
+
     return render(request, 'echarts_value_g.html', context)
     # return render(request, 'html_base.html', context)
 # def receive(request):
