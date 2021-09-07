@@ -324,11 +324,11 @@ def runoob(request):
                                          date_e=bk_param_dict['bk_date_e'])
             context['data'] = data_list
         if len(bk_summary) != 0:
-            sql = "select trade_date,bk_name,bk_code,ranks from bankuai_day_data " \
+            sql = "select trade_date,bk_name,bk_code,ranks,increase from bankuai_day_data " \
                   "where trade_date >= '{0}' and trade_date <='{1}' ".format(bk_summary['bk_data_date_s'],bk_summary['bk_data_date_e'])
             df = pub_uti.creat_df(sql,ascending=True)
             # print('df:',df)
-            # df['ranks'] = df['ranks']
+            df['ranks'] = df['increase']
             bk_dict = {}
             bk_set = set(df['bk_name'])
             time_list = []
