@@ -6,21 +6,22 @@ import os
 import logging
 from sqlalchemy import create_engine
 import json
+import config.config as config
 
 """
 【功能】读取配置
 """
-class read_conf:
-    def __init__(self):
-        self.param = os.path.dirname(os.getcwd())
-    def read_config(self,param=None):
-        if param == None:
-            param = self.param
-        with open('{}\\stock_django\\config\\db_config.json'.format(param),'r') as f:
-            config_param = json.load(f)
-        return config_param
-rc = read_conf()
-read_conf = rc.read_config
+# class read_conf:
+#     def __init__(self):
+#         self.param = os.path.dirname(os.getcwd())
+#     def read_config(self,param=None):
+#         if param == None:
+#             param = self.param
+#         with open('{}\\stock_django\\config\\db_config.json'.format(param),'r') as f:
+#             config_param = json.load(f)
+#         return config_param
+# rc = read_conf()
+# read_conf = rc.read_config
 """
 【功能】创建db
 """
@@ -28,7 +29,7 @@ class con_db:
     def __init__(self):
         pass
     def creat_db(self):
-        db_config = read_conf()
+        db_config = config.db_config
         db = pymysql.connect(host=db_config["host"], user=db_config["user"], password=db_config["password"],
                              database=db_config["database"])
         return db
@@ -123,7 +124,7 @@ class save:
 """
 class df_to_db:
     def __init__(self):
-        db_config = read_conf()
+        db_config = config.db_config
         host=db_config["host"],
         user=db_config["user"],
         password=db_config["password"],
