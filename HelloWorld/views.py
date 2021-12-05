@@ -7,7 +7,7 @@ import datetime
 import json
 import re
 import pandas as pd
-from . import pub_uti
+import pub_uti
 
 
 def get_df_from_db(sql):

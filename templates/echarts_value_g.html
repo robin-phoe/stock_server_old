@@ -28,12 +28,13 @@
     var date = new Date();
     var data_list = {{data | safe}};
     var bk_dict = {{bk | safe}};
-    console.log(Object.keys(bk_dict).length,data_list.lenght)
+    console.log(`data_list: ${Object.keys(data_list).length},${data_list}`)
+    console.log(`bk_dict: ${Object.keys(data_list).length}`)
     var page = 0
     var page_count = 20
-    var count_page =  Math.ceil(data_list.length/page_count);
+    var count_page =  Math.ceil(Object.keys(data_list).length/page_count);
     var reason_respone = ''
-    if (data_list.lenght > 0){
+    if (Object.keys(data_list).length > 0){
         console.log('in1')
         draw_main()
     }
@@ -42,6 +43,7 @@
         draw_bk()
     }
     else{
+        console.log('in2')
         let newhtml = `<a>当日无数据.</a>`
         document.getElementsByClassName('content')[0].innerHTML=newhtml
     }
@@ -247,6 +249,45 @@
       };
     }
 
+    {#//分段计算#}
+    {#function fenduans(data){#}
+    {#  var markLineData = [];#}
+    {#  var idx = 0; var tag = 0; var vols = 0;#}
+    {#  for (var i = 0; i < data.times.length; i++) {#}
+    {#      //初始化数据#}
+    {#      if(data.datas[i][5] != 0 && tag == 0){#}
+    {#          idx = i; vols = data.datas[i][4]; tag = 1;#}
+    {#      }#}
+    {#      if(tag == 1){ vols += data.datas[i][4]; }#}
+    {#      if(data.datas[i][5] != 0 && tag == 1){#}
+    {#          markLineData.push([{#}
+    {#              xAxis: idx,#}
+    {#              yAxis: data.datas[idx][1]>data.datas[idx][0]?(data.datas[idx][3]).toFixed(2):(data.datas[idx][2]).toFixed(2),#}
+    {#              value: vols#}
+    {#          }, {#}
+    {#              xAxis: i,#}
+    {#              yAxis: data.datas[i][1]>data.datas[i][0]?(data.datas[i][3]).toFixed(2):(data.datas[i][2]).toFixed(2)#}
+    {#          }]);#}
+    {#          idx = i; vols = data.datas[i][4]; tag = 2;#}
+    {#      }#}
+    {##}
+    {#      //更替数据#}
+    {#      if(tag == 2){ vols += data.datas[i][4]; }#}
+    {#      if(data.datas[i][5] != 0 && tag == 2){#}
+    {#          markLineData.push([{#}
+    {#              xAxis: idx,#}
+    {#              yAxis: data.datas[idx][1]>data.datas[idx][0]?(data.datas[idx][3]).toFixed(2):(data.datas[idx][2]).toFixed(2),#}
+    {#              value: (vols/(i-idx+1)).toFixed(2)#}
+    {#          }, {#}
+    {#              xAxis: i,#}
+    {#              yAxis: data.datas[i][1]>data.datas[i][0]?(data.datas[i][3]).toFixed(2):(data.datas[i][2]).toFixed(2)#}
+    {#          }]);#}
+    {#          idx = i; vols = data.datas[i][4];#}
+    {#      }#}
+    {#  }#}
+    {#  return markLineData;#}
+    {#}#}
+
     //分段计算
     function fenduans(data){
       var markLineData = [];
@@ -407,16 +448,15 @@
                               borderColor0: '#14b143',
                           }
                       },
-                      markArea: {
-                          silent: true,
-                          itemStyle: {
-                              normal: {
-                                  color: 'Honeydew'
-                              }
-                          },
-            <!--          data: fenduans()-->
-                          data: [[{"xAxis":'2021-10-01',"yAxis":"19.98","value":"61.40 M"},{"xAxis":'2021-11-01',"yAxis":"16.66"}]]
-                      },
+<!--                      markArea: {-->
+<!--                          silent: true,-->
+<!--                          itemStyle: {-->
+<!--                              normal: {-->
+<!--                                  color: 'Honeydew'-->
+<!--                              }-->
+<!--                          },-->
+<!--                          data: fenduans(data)-->
+<!--                      },-->
                       markPoint: {
                           data: [
                               {type: 'max', name: '最大值'},
