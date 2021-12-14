@@ -334,8 +334,8 @@
     }
     function go_page(page){
         list_start = page * page_count
-        if (data_list.lengh <= page*page_count){
-            end_no = data_list.lengh%page_count
+        if (Object.keys(data_list).length <= page*page_count){
+            end_no = Object.keys(data_list).length%page_count
         }
         else{
             end_no = page_count
@@ -361,13 +361,14 @@
         content.innerHTML=newhtml
         for (let j=list_start;j<(list_start+end_no);j++){
             i = j%page_count;
-            console.log('len_list:',j,data_list.length)
+            console.log('len_list:',j,Object.keys(data_list).length)
             let data_single = data_list[j];
-    <!--        console.log(`len_single:${data_single}`)-->
-            let table = data_single[0]
-            let info = data_single[2]
-            let stock_data = data_single[3]
-            let code = data_single[1]
+            let table = data_single[0];
+            let info = data_single[2];
+            let stock_data = data_single[3];
+            let code = data_single[1];
+            var zhuang_area = data_single[4];
+            console.log('zhuang_area:',JSON.stringify(zhuang_area))
             var data = splitData(stock_data);
             var option = {
               title: {
@@ -448,15 +449,15 @@
                               borderColor0: '#14b143',
                           }
                       },
-<!--                      markArea: {-->
-<!--                          silent: true,-->
-<!--                          itemStyle: {-->
-<!--                              normal: {-->
-<!--                                  color: 'Honeydew'-->
-<!--                              }-->
-<!--                          },-->
-<!--                          data: fenduans(data)-->
-<!--                      },-->
+                      markArea: {
+                          silent: true,
+                          itemStyle: {
+                              normal: {
+                                  color: 'yellow'
+                              }
+                          },
+                          data: zhuang_area
+                      },
                       markPoint: {
                           data: [
                               {type: 'max', name: '最大值'},
@@ -497,7 +498,7 @@
                           normal: {
                               color: function(params) {
                                   var colorList;
-                                  console.log('debug:',params,'data:',data.datas[params.dataIndex],data.datas[params.dataIndex][1],data.datas[params.dataIndex][0])
+<!--                                  console.log('debug:',params,'data:',data.datas[params.dataIndex],data.datas[params.dataIndex][1],data.datas[params.dataIndex][0])-->
                                   if (data.datas[params.dataIndex][1]>data.datas[params.dataIndex][0]) {
                                       colorList = '#ef232a';
                                   } else {

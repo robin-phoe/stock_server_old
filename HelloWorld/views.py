@@ -84,8 +84,34 @@ def sel_stock_k_date(res, table, date_e=None, date_s='2020-08-01'):
     # print("trade_df['wave_data']:", trade_df['wave_data'])
     # trade_df['wave_data'] = trade_df['wave_data'].apply(lambda x: 1 if float(x)>0 else 0)
     trade_df['point_type'] = trade_df['point_type'].apply(lambda x: 'n' if x == '' else x)
-    rows_list = trade_df.values.tolist()
+    sql_area = "select stock_id,zhuang_section from com_zhuang where stock_id in {}".format(id_tup)
+    zhuang_df = get_df_from_db(sql_area)
+    area_df = pd.DataFrame(columns=('stock_id', 'start_date', 'end_date', 's_price','e_price'))
+    def split_section(raw):
+        section_list = eval(raw['zhuang_section'])
+        if len(section_list) == 0:
+            return raw
+        for sec_tup in section_list:#('2018-05-28 00:00:00', '2018-03-16 00:00:00')
+            area_df.loc[len(area_df)] = [raw['stock_id'],sec_tup[1][0:10],sec_tup[0][0:10],0,0]
+    zhuang_df.apply(split_section,axis =1)
+    price_df = trade_df[['stock_id','trade_date','close_price']]
+    area_df = pd.merge(area_df,price_df,how='left',left_on=['stock_id','start_date'],right_on = ['stock_id','trade_date'])
+    area_df['s_price'] = area_df['close_price']
+    del area_df['close_price']
+    area_df = pd.merge(area_df,price_df,how='left',left_on=['stock_id','end_date'],right_on = ['stock_id','trade_date'])
+    area_df['e_price'] = area_df['close_price']
+    area_df.fillna(0,inplace = True)
+    del area_df['close_price']
+    # [[{"xAxis": 284, "yAxis": "19.65"}, {"xAxis": 290, "yAxis": "17.70"}],
+    #  [{"xAxis": 290, "yAxis": "17.70"}, {"xAxis": 299, "yAxis": "17.98"}]]
+    zhuang_area_dict = {}
+    def write_area(raw):
+        if raw['stock_id'] not in zhuang_area_dict:
+            zhuang_area_dict[raw['stock_id']] = []
+        zhuang_area_dict[raw['stock_id']].append([{"xAxis": raw['start_date'], "yAxis": raw['s_price']*0.9}, {"xAxis": raw['end_date'], "yAxis": raw['e_price']*1.1}])
+    area_df.apply(write_area,axis=1)
 
+    rows_list = trade_df.values.tolist()
     stcok_dict = {}
     for tup in rows_list:
         if tup[0] not in stcok_dict:
@@ -94,13 +120,17 @@ def sel_stock_k_date(res, table, date_e=None, date_s='2020-08-01'):
             stcok_dict[tup[0]].append(list(tup[1:]))
     print('stcok_dict_len:', len(stcok_dict))
     for stock in stcok_dict:
-        stcok_data = stcok_dict[stock]
+        stock_data = stcok_dict[stock]
         info = stock_info[stock][0]
         tag = stock_info[stock][1]
-        rows_list = [table, tag, info, stcok_data]
+        if stock in zhuang_area_dict:
+            zhuang_area = zhuang_area_dict[stock]
+        else:
+            zhuang_area =[]
+        rows_list = [table, tag, info, stock_data, zhuang_area]
         # data_list = {table,code(t_code | id),info(id,name,grade),[data]}
         data_list.append(rows_list)
-    # print('data_list:',data_list)
+    print('data_list:',data_list[0])
     return data_list
     # print('row:',rows[i])
     # print(rows)
@@ -163,6 +193,7 @@ def runoob(request):
     context = {}
     context['data'] = []
     context['bk'] = []
+
     if request.method == "POST":
         # put_reson = json.loads(request.body)
         print('req:', request.POST)
