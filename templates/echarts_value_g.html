@@ -11,6 +11,7 @@
 <input type='button' class="monitor" onclick="init_html('monitor')" value="监控">
 <input type='button' class="remen_xiaoboxin_B " onclick="init_html('remen_xiaoboxin_B')" value="热门小波形"></input>
 <input type='button' class="zhuang" onclick="init_html('zhuang')" value="庄线"></input>
+<input type='button' class="zhuang_day" onclick="init_html('zhuang_day')" value="庄线(日)"></input>
 <input type='button' class="remen_5" onclick="init_html('remen_5')" value="热门5日线"></input>
 <input type='button' class="remen_retrace" onclick="init_html('remen_retrace')" value="热门回撤"></input>
 <input type='button' class="limit_up" onclick="init_html('limit_up')" value="单涨停回撤"></input>
@@ -93,6 +94,19 @@
                             <td>开始日期:</td><input type="text" name="zhuang_input_date_s" value="${start_date_str}">
                             <td>终止日期:</td><input type="text" name="zhuang_input_date_e" value="${end_date_str}">
                             <input type="submit" value="查询" id="zhuang_btn"></form>`;
+        }
+        else if (option == "zhuang_day"){
+            let end_date_str = date_2_str(date)
+            let start_date_str = com_date(date,delta_date = 360)
+            var param=document.getElementsByClassName('param')[0]
+            var reason_respone = 'zhuang_day'
+            param.innerHTML=`<form method="POST"  style="padding-left:100px;padding-right:100px;top:0px" >
+                            <td>目标日期:</td><input type="text" name="zhuang_day_today_input" value="${today_str}">
+                            <td>起始分数:</td><input type="text" name="zhuang_day_input_grade_s" value="1000">
+                            <td>终止分数:</td><input type="text" name="zhuang_day_input_grade_e" value="10000">
+                            <td>开始日期:</td><input type="text" name="zhuang_day_input_date_s" value="${start_date_str}">
+                            <td>终止日期:</td><input type="text" name="zhuang_day_input_date_e" value="${end_date_str}">
+                            <input type="submit" value="查询" id="zhuang_day_btn"></form>`;
         }
         else if (option == "remen_5"){
             let end_date_str = date_2_str(date)

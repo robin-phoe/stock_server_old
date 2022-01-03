@@ -199,6 +199,7 @@ def runoob(request):
         print('req:', request.POST)
         remen_xiaoboxin_param_dict = {}
         zhuang_param_dict = {}
+        zhuang_day_param_dict = {}
         remen_5_param_dict = {}
         limit_up_param_dict = {}
         remen_retrace_param_dict = {}
@@ -233,6 +234,9 @@ def runoob(request):
             elif key in ('zhuang_input_date_s', 'zhuang_input_date_e',
                          'zhuang_input_grade_s', 'zhuang_input_grade_e'):
                 zhuang_param_dict[key] = request.POST[key]
+            elif key in ('zhuang_day_input_date_s', 'zhuang_day_input_date_e',
+                         'zhuang_day_input_grade_s', 'zhuang_input_day_grade_e','zhuang_day_today_input'):
+                zhuang_day_param_dict[key] = request.POST[key]
 
             elif key in ('remen_5_date_s', 'remen_5_date_e', 'remen_5_today_input',
                          'remen_5_grade_s', 'remen_5_grade_e'):
@@ -282,6 +286,15 @@ def runoob(request):
             res = sel_stock_list(sql)
             data_list = sel_stock_k_date(res, table='zhuang', date_s=zhuang_param_dict['zhuang_input_date_s'],
                                          date_e=zhuang_param_dict['zhuang_input_date_e'])
+            context['data'] = data_list
+        elif len(zhuang_day_param_dict) != 0:
+            sql = 'select distinct Z.stock_id,Z.stock_id,"" as stock_name,Z.grade,I.h_table,I.bk_name from zhuang_day_grade Z ' \
+                  'left join stock_informations I ' \
+                  'on Z.stock_id = I.stock_id ' \
+                  'where com_date = "{}" order by grade DESC'.format(zhuang_day_param_dict['zhuang_day_today_input'])
+            res = sel_stock_list(sql)
+            data_list = sel_stock_k_date(res, table='zhuang_day', date_s=zhuang_day_param_dict['zhuang_day_input_date_s'],
+                                         date_e=zhuang_day_param_dict['zhuang_day_input_date_e'])
             context['data'] = data_list
         elif len(remen_5_param_dict) != 0:
             sql = 'select distinct Z.trade_code,Z.stock_id,Z.stock_name,Z.redu_5,I.h_table,I.bk_name from com_redu_test Z ' \
