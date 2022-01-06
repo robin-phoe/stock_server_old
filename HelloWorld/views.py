@@ -288,7 +288,7 @@ def runoob(request):
                                          date_e=zhuang_param_dict['zhuang_input_date_e'])
             context['data'] = data_list
         elif len(zhuang_day_param_dict) != 0:
-            sql = 'select distinct Z.stock_id,Z.stock_id,"" as stock_name,Z.grade,I.h_table,I.bk_name from zhuang_day_grade Z ' \
+            sql = 'select distinct Z.trade_code,Z.stock_id,I.stock_name,Z.grade,I.h_table,I.bk_name from zhuang_day_grade Z ' \
                   'left join stock_informations I ' \
                   'on Z.stock_id = I.stock_id ' \
                   'where com_date = "{}" order by grade DESC'.format(zhuang_day_param_dict['zhuang_day_today_input'])
